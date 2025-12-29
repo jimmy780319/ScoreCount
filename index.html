@@ -3,48 +3,46 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#0b0f19" />
+  <meta name="theme-color" content="#f6f8fb" />
   <title>記分板</title>
 
   <style>
     :root{
-      --bg:#0b0f19;
-      --card:#121a2b;
-      --card2:#0f1626;
-      --text:#e8eefc;
-      --muted:#a8b3d6;
-      --line:rgba(255,255,255,.10);
-      --accent:#5aa8ff;
-      --good:#3ddc97;
-      --warn:#ffd166;
-      --bad:#ff5a7a;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --r:16px;
+      --bg:#f6f8fb;
+      --bg-glow1: radial-gradient(800px 600px at 20% -10%, rgba(33,118,255,.06), transparent 60%);
+      --bg-glow2: radial-gradient(700px 500px at 110% 10%, rgba(11,138,74,.04), transparent 55%);
+      --card:#ffffff;
+      --card2:#fbfbfe;
+      --text:#0b1220;
+      --muted:#6c7a93;
+      --line:rgba(11,18,32,.06);
+      --accent:#2176ff;
+      --good:#0b8a4a;
+      --warn:#b8860b;
+      --bad:#d32f2f;
+      --shadow: 0 8px 20px rgba(6,10,20,.06);
+      --r:12px;
       --pad:14px;
       --gap:12px;
-      --btn:#1b2742;
-      --btn2:#22335a;
+      --btn:#f0f3f8;
+      --btn2:#e6ecf8;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Helvetica, Arial;
-      background: radial-gradient(1200px 900px at 20% -20%, rgba(90,168,255,.25), transparent 60%),
-                  radial-gradient(900px 700px at 110% 20%, rgba(61,220,151,.18), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-      min-height:100vh;
-    }
-    header{
-      position:sticky; top:0; z-index:20;
-      backdrop-filter: blur(10px);
-      background: linear-gradient(to bottom, rgba(11,15,25,.92), rgba(11,15,25,.55));
-      border-bottom:1px solid var(--line);
-    }
-    .wrap{max-width:1100px; margin:0 auto; padding: 14px 14px 18px;}
-    .top{
-      display:flex; gap:12px; align-items:center; justify-content:space-between;
-      flex-wrap:wrap;
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(11,18,32,.06);
+      border:1px solid var(--line);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 50;
     }
     h1{font-size:18px; margin:0; letter-spacing:.5px}
     .sub{color:var(--muted); font-size:12px; margin-top:2px}
@@ -52,14 +50,14 @@
     .pill{
       display:inline-flex; gap:8px; align-items:center;
       border:1px solid var(--line);
-      background: rgba(18,26,43,.65);
+      background: rgba(11,18,32,.03);
       padding:10px 12px;
       border-radius:999px;
       box-shadow: var(--shadow);
     }
     .pill label{font-size:12px; color:var(--muted)}
     input[type="text"]{
-      background: rgba(255,255,255,.06);
+      background: rgba(11,18,32,.03);
       border:1px solid var(--line);
       color:var(--text);
       border-radius:12px;
@@ -96,7 +94,7 @@
       .grid{grid-template-columns:1fr}
     }
     .card{
-      background: linear-gradient(180deg, rgba(18,26,43,.92), rgba(15,22,38,.92));
+      background: linear-gradient(180deg, var(--card), var(--card2));
       border:1px solid var(--line);
       border-radius: var(--r);
       box-shadow: var(--shadow);
@@ -135,34 +133,34 @@
       padding: 6px 10px;
       border-radius: 999px;
       border:1px solid var(--line);
-      background: rgba(0,0,0,.18);
+      background: rgba(11,18,32,.06);
     }
+    .playerSwatch{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;border:1px solid rgba(11,18,32,.12);vertical-align:middle}
+    .playerNameTag{display:inline-block;padding:4px 8px;border-radius:8px;color:var(--text);font-weight:600;margin-right:6px}
     .btns{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
     .btns button{white-space:nowrap}
 
     .dropzone{
       padding: 12px;
       border-radius: var(--r);
-      border: 1px dashed rgba(168,179,214,.35);
-      background: rgba(255,255,255,.03);
+      border: 1px dashed var(--line);
+      background: rgba(11,18,32,.02);
       min-height: 64px;
     }
     .dropzone.over{
-      border-color: rgba(90,168,255,.75);
-      background: rgba(90,168,255,.08);
+      border-color: rgba(33,118,255,.35);
+      background: rgba(33,118,255,.04);
     }
     .teams{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      /* single column layout (always one column) */
+      grid-template-columns: 1fr;
       gap: var(--gap);
-    }
-    @media (max-width: 700px){
-      .teams{grid-template-columns:1fr}
     }
     .teamCard{
       border:1px solid var(--line);
       border-radius: var(--r);
-      background: rgba(255,255,255,.03);
+      background: rgba(11,18,32,.02);
       overflow:hidden;
     }
     .teamCard .th{
@@ -178,7 +176,7 @@
     .teamActions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
     .seg{
       display:flex; gap:8px; align-items:center;
-      background: rgba(255,255,255,.04);
+      background: rgba(11,18,32,.02);
       border:1px solid var(--line);
       padding:6px;
       border-radius: 999px;
@@ -199,7 +197,7 @@
     textarea{
       width:100%;
       min-height:120px;
-      background: rgba(0,0,0,.20);
+      background: rgba(11,18,32,.03);
       color: var(--text);
       border:1px solid var(--line);
       border-radius: 14px;
@@ -208,6 +206,15 @@
       resize: vertical;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size:12px;
+    }
+
+    /* page view helpers */
+    .page{display:none}
+    .page.active{display:block}
+    @media (min-width: 900px){
+      /* on wide screens keep pages full-width stacked (each page occupies full container width) */
+      .pages{display:grid}
+      .grid.pages{grid-template-columns: 1fr}
     }
 
     .toast{
@@ -231,6 +238,8 @@
       opacity:1;
       transform: translateX(-50%) translateY(-4px);
     }
+    /* temporarily hide export/import controls and IO box */
+    #btnExport, #btnImport, #ioBox { display: none !important; }
   </style>
 </head>
 
@@ -239,30 +248,33 @@
   <div class="wrap">
     <div class="top">
       <div>
-        <h1>記分板（自用版）</h1>
-        <div class="sub">建立人員 / 建立分組 / 拖拉分組 / 個人或團體計分（資料存本機）</div>
+        <h1>記分板</h1>
+        <div class="sub">建立人員 / 建立場次（每場次獨立分組與計分），分數存本機</div>
       </div>
 
-      <div class="row">
-        <div class="seg" aria-label="計分模式">
-          <button id="modePlayer" class="active" type="button">個人</button>
-          <button id="modeTeam" type="button">團體</button>
+      <div style="display:flex; gap:8px; align-items:center">
+        <div class="seg" aria-label="頁面切換">
+          <button id="viewPlayers" class="active small" type="button">人員</button>
+          <button id="viewSessions" class="small" type="button">場次/分組</button>
+          <button id="viewBoard" class="small" type="button">記分板</button>
         </div>
-
-        <button id="btnReset" class="danger" type="button" title="清空所有資料">重置</button>
+        <div style="display:flex; gap:8px; align-items:center">
+          <button id="btnReset" class="danger" type="button" title="清空所有資料">重置</button>
+        </div>
       </div>
+
     </div>
   </div>
 </header>
 
 <main>
-  <div class="grid">
+    <div class="grid pages">
     <!-- 人員 -->
-    <section class="card">
+    <section id="playersSection" class="card page">
       <div class="hd">
         <div class="title">
           <b>人員</b>
-          <span>新增人員後，可拖到分組；個人分數在個人模式可直接加減</span>
+          <span>新增人員後，可拖到分組；個人分數可直接加減</span>
         </div>
       </div>
       <div class="bd">
@@ -273,36 +285,34 @@
 
         <div class="sep"></div>
 
-        <div class="title" style="margin-bottom:8px">
-          <b style="font-size:13px">未分組（可拖拉到下方隊伍）</b>
-          <span>把人拖到某個隊伍卡片即可加入；也可拖回未分組</span>
-        </div>
         <div id="unassignedZone" class="dropzone" data-team-id="" aria-label="未分組拖放區"></div>
-
-        <div class="sep"></div>
-
-        <div class="hint">小技巧：在 iPhone Safari「分享 → 加入主畫面」，就像 App 一樣開啟。</div>
       </div>
     </section>
 
     <!-- 分組 -->
-    <section class="card">
+    <section id="sessionsSection" class="card page">
       <div class="hd">
         <div class="title">
-          <b>分組</b>
-          <span>支援手動新增/刪除與自動分組</span>
+          <b>場次（Session）</b>
+          <span>建立場次後，點選某場次進入該場次分組與計分（每場次獨立）</span>
         </div>
         <div class="row">
-          <button id="btnAutoGroup" class="primary" type="button" title="把未分組的人平均分配到隊伍">自動分組</button>
+          <button id="btnAddSession" class="primary" type="button">新增場次</button>
         </div>
       </div>
       <div class="bd">
-        <div class="row" style="justify-content:flex-start">
-          <input id="teamName" type="text" placeholder="輸入隊伍名稱" />
-          <button id="btnAddTeam" class="primary" type="button">新增隊伍</button>
-        </div>
+        <div id="sessionsWrap" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center"></div>
 
         <div class="sep"></div>
+
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px">
+          <input id="teamName" type="text" placeholder="輸入隊伍名稱" />
+          <button id="btnAddTeam" class="small" type="button">新增隊伍</button>
+          <button id="btnAutoTeams" class="small" type="button" title="建立指定數量的隊伍（會清空本場現有隊伍）">自動隊伍</button>
+          <button id="btnAutoGroup" class="small" type="button" title="把未分組的人平均分配到隊伍">自動分組</button>
+          <button id="btnRandomGroup" class="small" type="button" title="把所有人隨機分配到本場隊伍">隨機分組</button>
+          <button id="btnCloneSession" class="small ghost" type="button" title="複製目前場次配置開啟下一場">下一場</button>
+        </div>
 
         <div id="teamsWrap" class="teams" aria-label="隊伍列表"></div>
       </div>
@@ -312,11 +322,10 @@
   <div style="height:12px"></div>
 
   <!-- 計分板 -->
-  <section class="card">
+  <section id="scoreboardSection" class="card page">
     <div class="hd">
       <div class="title">
         <b>計分板</b>
-        <span>個人模式：加減個人分數；團體模式：加減隊伍分數（獨立）</span>
       </div>
       <div class="row">
         <button id="btnExport" type="button">匯出 JSON</button>
@@ -329,8 +338,6 @@
         <textarea id="ioBox" placeholder="匯出會出現在這裡；匯入請把 JSON 貼在這裡再按匯入"></textarea>
       </div>
 
-      <div class="sep"></div>
-
       <div id="scoreboard" class="list" aria-label="計分列表"></div>
     </div>
   </section>
@@ -342,9 +349,10 @@
 (() => {
   const STORAGE_KEY = "scoreboard_state_v1";
 
-  /** @typedef {{id:string,name:string,score:number,teamId:string|null}} Player */
+  /** @typedef {{id:string,name:string,total:number}} Player */
   /** @typedef {{id:string,name:string,teamScore:number}} Team */
-  /** @typedef {{players:Player[],teams:Team[],mode:"player"|"team"}} State */
+  /** @typedef {{id:string,name:string,teams:Team[],assignments:Object<string,string|null>,playerScores:Object<string,number>,finished?:boolean}} Session */
+  /** @typedef {{players:Player[],sessions:Session[],currentSessionId:string|null}} State */
 
   /** @type {State} */
   let state = loadState();
@@ -355,9 +363,20 @@
   const teamName = document.getElementById("teamName");
   const btnAddTeam = document.getElementById("btnAddTeam");
   const btnAutoGroup = document.getElementById("btnAutoGroup");
+  const btnRandomGroup = document.getElementById("btnRandomGroup");
+  const btnAutoTeams = document.getElementById("btnAutoTeams");
+  const btnCloneSession = document.getElementById("btnCloneSession");
   const teamsWrap = document.getElementById("teamsWrap");
+  const btnAddSession = document.getElementById("btnAddSession");
+  const sessionsWrap = document.getElementById("sessionsWrap");
   const unassignedZone = document.getElementById("unassignedZone");
   const scoreboard = document.getElementById("scoreboard");
+  const playersSection = document.getElementById('playersSection');
+  const sessionsSection = document.getElementById('sessionsSection');
+  const scoreboardSection = document.getElementById('scoreboardSection');
+  const viewPlayers = document.getElementById('viewPlayers');
+  const viewSessions = document.getElementById('viewSessions');
+  const viewBoard = document.getElementById('viewBoard');
   const modePlayer = document.getElementById("modePlayer");
   const modeTeam = document.getElementById("modeTeam");
   const btnReset = document.getElementById("btnReset");
@@ -376,28 +395,38 @@
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { players: [], teams: [], mode: "player" };
+      if (!raw) return { players: [], sessions: [], currentSessionId: null };
       const parsed = JSON.parse(raw);
-      // minimal sanity
-      if (!parsed || !Array.isArray(parsed.players) || !Array.isArray(parsed.teams)) {
-        return { players: [], teams: [], mode: "player" };
+      // migration: old format had players[] and teams[] and mode
+      if (parsed && Array.isArray(parsed.players) && Array.isArray(parsed.teams)) {
+        // migrate old format: create default session and move teams and assignments
+        const defaultSessionId = uid('s');
+        const assignments = {};
+        for (const p of parsed.players) {
+          if (p.teamId) assignments[String(p.id ?? uid('p'))] = String(p.teamId);
+        }
+        const sess = {
+          id: defaultSessionId,
+          name: '預設場次',
+          teams: parsed.teams.map(t => ({ id: String(t.id ?? uid('t')), name: String(t.name ?? '隊伍'), teamScore: Number.isFinite(t.teamScore) ? t.teamScore : 0 })),
+          assignments: assignments,
+          playerScores: {}
+        };
+        const players = parsed.players.map(p => ({ id: String(p.id ?? uid('p')), name: String(p.name ?? '未命名'), total: Number.isFinite(p.score) ? p.score : 0 }));
+        return { players, sessions: [sess], currentSessionId: defaultSessionId };
       }
-      if (parsed.mode !== "player" && parsed.mode !== "team") parsed.mode = "player";
-      // fill defaults
-      parsed.players = parsed.players.map(p => ({
-        id: String(p.id ?? uid("p")),
-        name: String(p.name ?? "未命名"),
-        score: Number.isFinite(p.score) ? p.score : 0,
-        teamId: (p.teamId === null || p.teamId === undefined || p.teamId === "") ? null : String(p.teamId)
-      }));
-      parsed.teams = parsed.teams.map(t => ({
-        id: String(t.id ?? uid("t")),
-        name: String(t.name ?? "隊伍"),
-        teamScore: Number.isFinite(t.teamScore) ? t.teamScore : 0
-      }));
+      // expected new format sanity
+      if (!parsed || !Array.isArray(parsed.players) || !Array.isArray(parsed.sessions)) {
+        return { players: [], sessions: [], currentSessionId: null, currentView: 'players' };
+      }
+      parsed.players = parsed.players.map(p => ({ id: String(p.id ?? uid('p')), name: String(p.name ?? '未命名'), total: Number.isFinite(p.total ?? p.score) ? (Number.isFinite(p.total) ? p.total : p.score) : 0, color: (p && p.color) ? String(p.color) : pickColorForName(String(p.name ?? '')) }));
+      parsed.sessions = parsed.sessions.map(s => ({ id: String(s.id ?? uid('s')), name: String(s.name ?? '場次'), teams: Array.isArray(s.teams)?s.teams.map(t=>({ id: String(t.id ?? uid('t')), name: String(t.name ?? '隊伍'), teamScore: Number.isFinite(t.teamScore)?t.teamScore:0 })) : [], assignments: (s.assignments&&typeof s.assignments==='object')?s.assignments:{}, playerScores: (s.playerScores&&typeof s.playerScores==='object')?s.playerScores:{}, finished: !!s.finished }));
+      if (!parsed.currentSessionId && parsed.sessions.length) parsed.currentSessionId = parsed.sessions[0].id;
+      if (!parsed.currentView) parsed.currentView = 'players';
+      if (!parsed.theme) parsed.theme = 'light';
       return parsed;
     } catch {
-      return { players: [], teams: [], mode: "player" };
+      return { players: [], sessions: [], currentSessionId: null, currentView: 'players' };
     }
   }
 
@@ -407,27 +436,94 @@
     setTimeout(() => toast.classList.remove("show"), 1200);
   }
 
+  // Player color helpers
+  const PLAYER_PALETTE = ['#e6194b','#3cb44b','#4363d8','#f58231','#911eb4','#46f0f0','#f032e6','#bcf60c','#fabebe','#008080','#e6beff','#9a6324','#fffac8','#800000','#aaffc3','#808000','#ffd8b1','#000075','#a9a9a9','#d7263d','#0b6623'];
+  function pickColorForName(name) {
+    if (!name) return PLAYER_PALETTE[Math.floor(Math.random()*PLAYER_PALETTE.length)];
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return PLAYER_PALETTE[h % PLAYER_PALETTE.length];
+  }
+
+  function hexToRgb(hex) {
+    const h = String(hex).replace('#','');
+    const bigint = parseInt(h.length === 3 ? h.split('').map(c=>c+c).join('') : h, 16);
+    return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+  }
+  function getContrastColor(hex) {
+    try {
+      const {r,g,b} = hexToRgb(hex);
+      // relative luminance approximation
+      const yiq = (r*299 + g*587 + b*114) / 1000;
+      return yiq >= 150 ? '#0b1220' : '#ffffff';
+    } catch (e) { return '#ffffff'; }
+  }
+
+  function changePlayerColor(id, color) {
+    const p = state.players.find(x => x.id === id);
+    if (!p) return;
+    p.color = color;
+    saveState(); render();
+  }
+
   function getTeamName(teamId) {
     if (!teamId) return "未分組";
-    const t = state.teams.find(x => x.id === teamId);
-    return t ? t.name : "（已刪除隊伍）";
+    for (const s of state.sessions) {
+      const t = s.teams.find(x => x.id === teamId);
+      if (t) return t.name;
+    }
+    return "（已刪除隊伍）";
   }
 
   function teamMemberCount(teamId) {
-    return state.players.filter(p => p.teamId === teamId).length;
+    const s = currentSession();
+    if (!s) return 0;
+    return state.players.filter(p => (s.assignments[p.id] || null) === teamId).length;
   }
   function teamMembers(teamId) {
-    return state.players.filter(p => p.teamId === teamId);
+    const s = currentSession();
+    if (!s) return [];
+    return state.players.filter(p => (s.assignments[p.id] || null) === teamId);
   }
   function teamMembersScoreSum(teamId) {
-    return teamMembers(teamId).reduce((sum, p) => sum + p.score, 0);
+    return teamMembers(teamId).reduce((sum, p) => sum + p.total, 0);
+  }
+
+  function teamMembersInSession(sessionId, teamId) {
+    const s = state.sessions.find(x => x.id === sessionId);
+    if (!s) return [];
+    return state.players.filter(p => (s.assignments && s.assignments[p.id]) === teamId);
+  }
+
+  function getSessionPlayerScore(playerId) {
+    const s = currentSession();
+    if (!s) return 0;
+    return Number.isFinite(s.playerScores[playerId]) ? s.playerScores[playerId] : 0;
+  }
+
+  function changeSessionPlayerScore(playerId, delta) {
+    const s = currentSession();
+    if (!s) return showToast('請先選擇場次');
+    s.playerScores[playerId] = (Number.isFinite(s.playerScores[playerId]) ? s.playerScores[playerId] : 0) + delta;
+    // also immediately apply to player's total so scoreboard updates live
+    const p = state.players.find(x => x.id === playerId);
+    if (p) p.total = (p.total || 0) + delta;
+    saveState(); render();
+  }
+
+  function currentSession() {
+    if (!state.currentSessionId) return null;
+    return state.sessions.find(s => s.id === state.currentSessionId) || null;
   }
 
   // ----- Actions -----
   function addPlayer(name) {
     const n = (name ?? "").trim();
     if (!n) return showToast("請輸入人員名稱");
-    state.players.push({ id: uid("p"), name: n, score: 0, teamId: null });
+    // check duplicate (case-insensitive)
+    const low = n.toLowerCase();
+    if (state.players.some(p => String(p.name).trim().toLowerCase() === low)) return showToast("人員名稱不可重複");
+    state.players.push({ id: uid("p"), name: n, total: 0, color: pickColorForName(n) });
     saveState(); render();
     playerName.value = "";
     showToast("已新增人員");
@@ -435,82 +531,234 @@
 
   function removePlayer(id) {
     state.players = state.players.filter(p => p.id !== id);
+    // remove from all session assignments and scores
+    for (const s of state.sessions) {
+      if (s.assignments && (id in s.assignments)) delete s.assignments[id];
+      if (s.playerScores && (id in s.playerScores)) delete s.playerScores[id];
+    }
     saveState(); render();
     showToast("已刪除人員");
   }
 
   function addTeam(name) {
     const n = (name ?? "").trim();
+    const s = currentSession();
+    if (!s) return showToast("請先建立並選擇一個場次");
     if (!n) return showToast("請輸入隊伍名稱");
-    state.teams.push({ id: uid("t"), name: n, teamScore: 0 });
+    // check duplicate team name within the same session (case-insensitive)
+    const low = n.toLowerCase();
+    if ((s.teams || []).some(t => String(t.name).trim().toLowerCase() === low)) return showToast('本場隊伍名稱不可重複');
+    s.teams.push({ id: uid("t"), name: n, teamScore: 0 });
     saveState(); render();
     teamName.value = "";
-    showToast("已新增隊伍");
+    showToast("已於本場新增隊伍");
+  }
+
+  function autoTeams() {
+    const s = currentSession();
+    if (!s) return showToast('請先建立並選擇一個場次');
+    const raw = prompt('請輸入要建立的隊伍數量（整數）：', '4');
+    if (raw === null) return;
+    const x = parseInt(raw, 10);
+    if (!Number.isFinite(x) || x <= 0) return showToast('輸入無效的數字');
+    // clear current teams and assignments, create teams, then fairly assign players
+    s.teams = [];
+    s.assignments = {};
+    for (let i = 1; i <= x; i++) {
+      s.teams.push({ id: uid('t'), name: `隊伍${i}`, teamScore: 0 });
+    }
+    // perform balanced random assignment across new teams
+    balancedRandomAssign(s, state.players.map(p => p.id), s.teams.map(t => t.id));
+    saveState(); render();
+    showToast(`已建立 ${x} 組隊伍並自動分配（本場）`);
+  }
+
+  function randomGroup() {
+    const s = currentSession();
+    if (!s) return showToast('請先建立並選擇一個場次');
+    if (!s.teams || s.teams.length === 0) return showToast('本場尚無隊伍');
+    // fairly randomize all players into existing teams (balanced counts)
+    const ids = state.players.map(p => p.id).slice();
+    s.assignments = {};
+    balancedRandomAssign(s, ids, s.teams.map(t => t.id));
+    saveState(); render();
+    showToast('已隨機且公平地分配所有人到本場隊伍');
+  }
+
+  // Helper: fairly and randomly assign playerIds into teamIds for session s.
+  // Shuffle players, then compute team sizes (base + optionally 1 extra). The teams
+  // that receive the extra 1 are chosen at random so earlier teams are not favored.
+  function balancedRandomAssign(s, playerIds, teamIds) {
+    if (!Array.isArray(teamIds) || teamIds.length === 0) return;
+    const players = (playerIds || []).slice();
+    const teams = (teamIds || []).slice();
+
+    // Fisher-Yates shuffle players
+    for (let i = players.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = players[i]; players[i] = players[j]; players[j] = tmp;
+    }
+
+    // Shuffle teams order so extra slots are assigned to random teams
+    const teamOrder = teams.slice();
+    for (let i = teamOrder.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = teamOrder[i]; teamOrder[i] = teamOrder[j]; teamOrder[j] = tmp;
+    }
+
+    // Compute base size and remainder (which teams get one extra)
+    const base = Math.floor(players.length / teams.length);
+    const rem = players.length % teams.length;
+    const sizes = {};
+    for (const tid of teams) sizes[tid] = base;
+    for (let i = 0; i < rem; i++) {
+      const tid = teamOrder[i % teamOrder.length];
+      sizes[tid] = (sizes[tid] || 0) + 1;
+    }
+
+    // Build an array of team slots (team id repeated by its size), then shuffle slots
+    const slots = [];
+    for (const tid of teams) {
+      const cnt = sizes[tid] || 0;
+      for (let k = 0; k < cnt; k++) slots.push(tid);
+    }
+    // Shuffle the slots to remove any positional bias
+    for (let i = slots.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = slots[i]; slots[i] = slots[j]; slots[j] = tmp;
+    }
+
+    // Assign players to shuffled slots one-to-one
+    s.assignments = s.assignments || {};
+    for (let i = 0; i < players.length; i++) {
+      const pid = players[i];
+      const tid = slots[i];
+      s.assignments[pid] = tid || null;
+    }
+  }
+
+  function cloneSession() {
+    const s = currentSession();
+    if (!s) return showToast('請先建立並選擇一個場次');
+    const id = uid('s');
+    const idx = state.sessions.length + 1;
+    const name = `第${idx}場`;
+    // copy teams with new ids
+    const map = {};
+    const newTeams = (s.teams || []).map(t => {
+      const nid = uid('t');
+      map[t.id] = nid;
+      return { id: nid, name: t.name, teamScore: 0 };
+    });
+    const newAssignments = {};
+    if (s.assignments) {
+      for (const pid of Object.keys(s.assignments)) {
+        const oldTid = s.assignments[pid];
+        newAssignments[pid] = oldTid ? map[oldTid] || null : null;
+      }
+    }
+    const newSess = { id, name, teams: newTeams, assignments: newAssignments, playerScores: {}, finished: false };
+    state.sessions.push(newSess);
+    state.currentSessionId = id;
+    saveState(); render();
+    showToast('已複製場次（不包含分數）並切換到新場次');
   }
 
   function removeTeam(id) {
-    // 把該隊成員踢回未分組
-    state.players = state.players.map(p => p.teamId === id ? ({...p, teamId: null}) : p);
-    state.teams = state.teams.filter(t => t.id !== id);
+    // 把該隊成員踢回未分組（只影響該隊所在場次）
+    for (const s of state.sessions) {
+      if (s.teams.find(t => t.id === id)) {
+        // remove assignments pointing to this team
+        for (const pid of Object.keys(s.assignments || {})) {
+          if (s.assignments[pid] === id) s.assignments[pid] = null;
+        }
+        s.teams = s.teams.filter(t => t.id !== id);
+      }
+    }
     saveState(); render();
     showToast("已刪除隊伍（成員已回未分組）");
   }
 
   function renameTeam(id) {
-    const t = state.teams.find(x => x.id === id);
-    if (!t) return;
-    const n = prompt("輸入新的隊伍名稱：", t.name);
-    if (n === null) return;
-    const nn = n.trim();
-    if (!nn) return showToast("名稱不可空白");
-    t.name = nn;
-    saveState(); render();
-    showToast("已更新隊伍名稱");
+    for (const s of state.sessions) {
+      const t = s.teams.find(x => x.id === id);
+      if (t) {
+        const n = prompt("輸入新的隊伍名稱：", t.name);
+        if (n === null) return;
+        const nn = n.trim();
+        if (!nn) return showToast("名稱不可空白");
+        // check duplicate within same session (case-insensitive)
+        const low = nn.toLowerCase();
+        if (s.teams.some(x => x.id !== id && String(x.name).trim().toLowerCase() === low)) return showToast('本場已有相同名稱的隊伍');
+        t.name = nn;
+        saveState(); render();
+        showToast("已更新隊伍名稱");
+        return;
+      }
+    }
   }
 
   function assignPlayer(playerId, teamIdOrNull) {
     const p = state.players.find(x => x.id === playerId);
     if (!p) return;
-    p.teamId = teamIdOrNull;
+    const s = currentSession();
+    if (!s) return showToast('請先建立並選擇一個場次');
+    s.assignments = s.assignments || {};
+    s.assignments[playerId] = teamIdOrNull;
     saveState(); render();
     showToast(teamIdOrNull ? `已加入 ${getTeamName(teamIdOrNull)}` : "已回未分組");
   }
 
   function autoGroup() {
-    if (state.teams.length === 0) return showToast("請先新增至少 1 個隊伍");
-    const unassigned = state.players.filter(p => !p.teamId);
+    const s = currentSession();
+    if (!s) return showToast("請先建立並選擇一個場次");
+    if (s.teams.length === 0) return showToast("請先新增至少 1 個隊伍");
+    // unassigned in current session: players without assignment or null
+    const unassigned = state.players.filter(p => !s.assignments || !s.assignments[p.id]);
     if (unassigned.length === 0) return showToast("沒有未分組的人員");
 
-    // 每次把一個人分到目前人最少的隊伍（平衡）
     for (const p of unassigned) {
-      const sortedTeams = [...state.teams].sort((a,b) => teamMemberCount(a.id) - teamMemberCount(b.id));
-      p.teamId = sortedTeams[0].id;
+      const sortedTeams = [...s.teams].sort((a,b) => teamMemberCount(a.id) - teamMemberCount(b.id));
+      s.assignments[p.id] = sortedTeams[0].id;
     }
     saveState(); render();
-    showToast("自動分組完成");
+    showToast("本場自動分組完成");
   }
 
   function changePlayerScore(id, delta) {
+    // change global total score
     const p = state.players.find(x => x.id === id);
     if (!p) return;
-    p.score = (p.score + delta);
+    p.total = (p.total + delta);
     saveState(); render();
   }
   function changeTeamScore(id, delta) {
-    const t = state.teams.find(x => x.id === id);
-    if (!t) return;
-    t.teamScore = (t.teamScore + delta);
+    for (const s of state.sessions) {
+      const t = s.teams.find(x => x.id === id);
+      if (t) { t.teamScore = (t.teamScore + delta); saveState(); render(); return; }
+    }
+  }
+
+  function setCurrentSession(id) {
+    state.currentSessionId = id;
     saveState(); render();
   }
 
-  function setMode(mode) {
-    state.mode = mode;
+  function deleteSession(id) {
+    const s = state.sessions.find(x => x.id === id);
+    if (!s) return;
+    if (!confirm(`確定要刪除 ${s.name}？此動作會移除該場次的隊伍與分數，但不會刪除人員。`)) return;
+    state.sessions = state.sessions.filter(x => x.id !== id);
+    if (state.currentSessionId === id) {
+      state.currentSessionId = state.sessions.length ? state.sessions[0].id : null;
+    }
     saveState(); render();
+    showToast('已刪除場次');
   }
 
   function resetAll() {
-    if (!confirm("確定要重置？所有人員、隊伍、分數都會清空。")) return;
-    state = { players: [], teams: [], mode: "player" };
+    if (!confirm("確定要重置？所有人員、場次、分數都會清空。")) return;
+    state = { players: [], sessions: [], currentSessionId: null };
     saveState(); render();
     ioBox.value = "";
     showToast("已重置");
@@ -528,7 +776,7 @@
     if (!raw) return showToast("請先貼上 JSON");
     try {
       const parsed = JSON.parse(raw);
-      // reuse loadState-like sanitation on this object
+      // store directly, loadState will sanitize/migrate
       localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       state = loadState();
       saveState(); render();
@@ -539,9 +787,21 @@
   }
 
   // ----- Drag & Drop -----
-  function makePlayerRow(p, {showTeamMeta=true} = {}) {
+  function makePlayerRow(p, {showTeamMeta=true, context='session'} = {}) {
     const el = document.createElement("div");
     el.className = "item";
+    // apply player's background color to the whole row (use subtle translucent fill for readability)
+    const rowColor = p.color || pickColorForName(p.name);
+    try {
+      const {r,g,b} = hexToRgb(rowColor);
+      el.style.background = `rgba(${r},${g},${b},0.7)`; // subtle tint
+    } catch (e) {
+      el.style.background = rowColor;
+    }
+    const rowTextColor = getContrastColor(rowColor);
+    el.style.color = rowTextColor;
+    // set border color to remain visible against tinted background
+    el.style.borderColor = rowTextColor === '#ffffff' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.12)';
     el.draggable = true;
     el.dataset.playerId = p.id;
 
@@ -554,42 +814,72 @@
 
     const left = document.createElement("div");
     left.className = "name";
+
+    // name badge with full background color + hidden color input for changing color
+    const colorVal = p.color || pickColorForName(p.name);
+    const badge = document.createElement('span');
+    badge.className = 'playerNameTag';
+    badge.textContent = p.name;
+    badge.style.background = colorVal;
+    badge.style.color = getContrastColor(colorVal);
+    badge.title = '變更顏色';
+    badge.style.cursor = 'pointer';
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = (p.color && String(p.color).startsWith('#')) ? p.color : pickColorForName(p.name);
+    colorInput.style.display = 'none';
+    colorInput.addEventListener('input', () => changePlayerColor(p.id, colorInput.value));
+    badge.addEventListener('click', () => colorInput.click());
+
     const main = document.createElement("div");
     main.className = "main";
-    main.textContent = p.name;
+    main.appendChild(badge);
     const meta = document.createElement("div");
     meta.className = "meta";
-    meta.textContent = showTeamMeta ? `分組：${getTeamName(p.teamId)}` : "";
+    // make meta slightly muted but visible against the colored background
+    meta.style.color = (rowTextColor === '#ffffff') ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.65)';
+    // append color input (hidden) once
     left.appendChild(main);
+    left.appendChild(colorInput);
     if (showTeamMeta) left.appendChild(meta);
 
     const right = document.createElement("div");
     right.className = "btns";
+    // ensure action buttons remain readable on colored row
+    right.querySelectorAll && right.querySelectorAll('*');
 
-    const s = document.createElement("span");
-    s.className = "score";
-    s.textContent = `${p.score}`;
-    right.appendChild(s);
-
-    // score buttons (player)
-    if (state.mode === "player") {
+    const spanScore = document.createElement("span");
+    spanScore.className = "score";
+    if (context === 'session') {
+      spanScore.textContent = `${getSessionPlayerScore(p.id)}`;
+      right.appendChild(spanScore);
+      right.appendChild(scoreBtn("+1", () => changeSessionPlayerScore(p.id, +1)));
+      right.appendChild(scoreBtn("-1", () => changeSessionPlayerScore(p.id, -1), "small"));
+    } else {
+      spanScore.textContent = `${p.total}`;
+      right.appendChild(spanScore);
       right.appendChild(scoreBtn("+1", () => changePlayerScore(p.id, +1)));
-      right.appendChild(scoreBtn("+2", () => changePlayerScore(p.id, +2)));
-      right.appendChild(scoreBtn("+5", () => changePlayerScore(p.id, +5)));
       right.appendChild(scoreBtn("-1", () => changePlayerScore(p.id, -1), "small"));
     }
 
-    // remove
-    const del = document.createElement("button");
-    del.className = "small danger";
-    del.textContent = "刪除";
-    del.addEventListener("click", () => removePlayer(p.id));
-    right.appendChild(del);
+    // remove / unassign
+    if (context === 'session') {
+      // in a team/session view the delete button should remove the player from the team (unassign), not delete the person
+      const del = createDeleteIconButton('移出隊伍', () => {
+        assignPlayer(p.id, null);
+      });
+      right.appendChild(del);
+    } else {
+      const del = createDeleteIconButton('刪除人員', () => removePlayer(p.id));
+      right.appendChild(del);
+    }
 
     el.appendChild(left);
     el.appendChild(right);
     return el;
   }
+
+  // previously had finishSession (now removed). Sessions remain open and all scoring updates apply immediately to player totals.
 
   function scoreBtn(text, onClick, cls="small") {
     const b = document.createElement("button");
@@ -597,6 +887,25 @@
     b.textContent = text;
     b.addEventListener("click", onClick);
     return b;
+  }
+
+  function createDeleteIconButton(title, onClick) {
+    const btn = document.createElement('button');
+    btn.className = 'small danger';
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="display:block;">
+        <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
+        <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
+      </svg>
+    `;
+    btn.title = title;
+    btn.setAttribute('aria-label', title);
+    btn.style.padding = '6px';
+    btn.style.display = 'inline-flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    btn.addEventListener('click', onClick);
+    return btn;
   }
 
   function wireDropZone(zoneEl, teamIdOrNull) {
@@ -611,6 +920,7 @@
       zoneEl.classList.remove("over");
       const pid = ev.dataTransfer.getData("text/plain");
       if (!pid) return;
+      // when dropping to a team in current session, assign; dropping to unassigned removes team
       assignPlayer(pid, teamIdOrNull);
     });
   }
@@ -618,7 +928,9 @@
   // ----- Render -----
   function renderUnassigned() {
     unassignedZone.innerHTML = "";
-    const list = state.players.filter(p => !p.teamId);
+    const s = currentSession();
+    // In the 人員 page always show all players (master list), with their current隊伍標記
+    const list = [...state.players];
     if (list.length === 0) {
       const empty = document.createElement("div");
       empty.className = "hint";
@@ -627,21 +939,23 @@
       return;
     }
     for (const p of list) {
-      unassignedZone.appendChild(makePlayerRow(p));
+      // show global/player controls in the master list
+      unassignedZone.appendChild(makePlayerRow(p, { showTeamMeta: true, context: 'global' }));
     }
   }
 
   function renderTeams() {
     teamsWrap.innerHTML = "";
-    if (state.teams.length === 0) {
+    const s = currentSession();
+    if (!s || s.teams.length === 0) {
       const msg = document.createElement("div");
       msg.className = "hint";
-      msg.textContent = "尚未建立隊伍。你可以只用未分組 + 個人計分，也可以新增隊伍後拖拉分組。";
+      msg.textContent = "本場尚未建立隊伍。先新增隊伍或建立場次。";
       teamsWrap.appendChild(msg);
       return;
     }
 
-    for (const t of state.teams) {
+    for (const t of s.teams) {
       const tc = document.createElement("div");
       tc.className = "teamCard";
 
@@ -654,24 +968,29 @@
       b.textContent = t.name;
 
       const memberCnt = teamMemberCount(t.id);
-      const sumPlayers = teamMembersScoreSum(t.id);
       const meta = document.createElement("span");
-      meta.textContent = `人數：${memberCnt}｜隊伍分：${t.teamScore}｜個人加總：${sumPlayers}`;
+      // show only member count here; team score will be shown with controls on the right
+      meta.textContent = `人數：${memberCnt}`;
       left.appendChild(b);
       left.appendChild(meta);
 
       const right = document.createElement("div");
       right.className = "teamActions";
 
+      // team score display + buttons inline (no 個人加總 shown)
+      const scoreSpan = document.createElement('span');
+      scoreSpan.className = 'score';
+      scoreSpan.textContent = `${t.teamScore}`;
+      right.appendChild(scoreSpan);
+      right.appendChild(scoreBtn(`+1`, () => changeTeamScore(t.id, +1)));
+      right.appendChild(scoreBtn(`-1`, () => changeTeamScore(t.id, -1), 'small'));
+
       const rename = document.createElement("button");
       rename.className = "small";
       rename.textContent = "改名";
       rename.addEventListener("click", () => renameTeam(t.id));
 
-      const del = document.createElement("button");
-      del.className = "small danger";
-      del.textContent = "刪隊";
-      del.addEventListener("click", () => removeTeam(t.id));
+      const del = createDeleteIconButton('刪除隊伍', () => removeTeam(t.id));
 
       right.appendChild(rename);
       right.appendChild(del);
@@ -695,29 +1014,15 @@
         empty.textContent = "拖拉人員到這裡加入隊伍";
         dz.appendChild(empty);
       } else {
-        for (const p of members) dz.appendChild(makePlayerRow(p));
+        for (const p of members) dz.appendChild(makePlayerRow(p, { showTeamMeta: true, context: 'session' }));
       }
 
-      // team score buttons (team mode)
-      if (state.mode === "team") {
-        const pad = document.createElement("div");
-        pad.style.marginTop = "10px";
-        pad.style.display = "flex";
-        pad.style.gap = "8px";
-        pad.style.flexWrap = "wrap";
-
-        pad.appendChild(scoreBtn(`隊伍 +1`, () => changeTeamScore(t.id, +1)));
-        pad.appendChild(scoreBtn(`隊伍 +2`, () => changeTeamScore(t.id, +2)));
-        pad.appendChild(scoreBtn(`隊伍 +5`, () => changeTeamScore(t.id, +5)));
-        pad.appendChild(scoreBtn(`隊伍 -1`, () => changeTeamScore(t.id, -1)));
-
-        tb.appendChild(pad);
-        const hint = document.createElement("div");
-        hint.className = "hint";
-        hint.style.marginTop = "8px";
-        hint.textContent = "團體模式：上面按鈕會改「隊伍分」（獨立於個人分數）。";
-        tb.appendChild(hint);
-      }
+      // team controls moved to header; no extra pad here
+      const hint = document.createElement("div");
+      hint.className = "hint";
+      hint.style.marginTop = "8px";
+      hint.textContent = "隊伍分為本場專屬分數；個人分數不受影響。";
+      tb.appendChild(hint);
 
       tb.appendChild(dz);
 
@@ -729,82 +1034,70 @@
 
   function renderScoreboard() {
     scoreboard.innerHTML = "";
+    const title = document.createElement("div");
+    title.className = "hint";
+    title.textContent = "個人總分 - 依個人分數排序（高→低）";
+    scoreboard.appendChild(title);
 
-    if (state.mode === "player") {
-      const title = document.createElement("div");
-      title.className = "hint";
-      title.textContent = "個人模式：依個人分數排序（高→低）";
-      scoreboard.appendChild(title);
+    const list = [...state.players].sort((a,b) => b.total - a.total || a.name.localeCompare(b.name, "zh-Hant"));
+    if (list.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "hint";
+      empty.textContent = "尚無人員。先到上方新增人員。";
+      scoreboard.appendChild(empty);
+      return;
+    }
 
-      const list = [...state.players].sort((a,b) => b.score - a.score || a.name.localeCompare(b.name, "zh-Hant"));
-      if (list.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "hint";
-        empty.textContent = "尚無人員。先到上方新增人員。";
-        scoreboard.appendChild(empty);
-        return;
+    for (const p of list) {
+      const row = document.createElement("div");
+      row.className = "item";
+      const left = document.createElement("div");
+      left.className = "name";
+      // apply full-row background color for player (subtle tint)
+      const colorVal = p.color || pickColorForName(p.name);
+      try {
+        const {r,g,b} = hexToRgb(colorVal);
+        row.style.background = `rgba(${r},${g},${b},0.10)`;
+      } catch (e) {
+        row.style.background = colorVal;
       }
+      const contrast = getContrastColor(colorVal);
+      row.style.color = contrast;
+      row.style.borderColor = contrast === '#ffffff' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.12)';
+      const s = currentSession();
+      const teamId = s && s.assignments ? (s.assignments[p.id] || null) : null;
+      const badgeHtml = `<span class="playerNameTag" style="background:${escapeHtml(colorVal)};color:${escapeHtml(contrast)}">${escapeHtml(p.name)}</span>`;
+      left.innerHTML = `<div class="main">${badgeHtml}</div><div class="meta">分組：${escapeHtml(getTeamName(teamId))}</div>`;
 
-      for (const p of list) {
-        const row = document.createElement("div");
-        row.className = "item";
-        const left = document.createElement("div");
-        left.className = "name";
-        left.innerHTML = `<div class="main">${escapeHtml(p.name)}</div><div class="meta">分組：${escapeHtml(getTeamName(p.teamId))}</div>`;
-        const right = document.createElement("div");
-        right.className = "btns";
-        const s = document.createElement("span");
-        s.className = "score";
-        s.textContent = `${p.score}`;
-        right.appendChild(s);
-        right.appendChild(scoreBtn("+1", () => changePlayerScore(p.id, +1)));
-        right.appendChild(scoreBtn("+2", () => changePlayerScore(p.id, +2)));
-        right.appendChild(scoreBtn("+5", () => changePlayerScore(p.id, +5)));
-        right.appendChild(scoreBtn("-1", () => changePlayerScore(p.id, -1)));
-        row.appendChild(left);
-        row.appendChild(right);
-        scoreboard.appendChild(row);
+      // 每場成績顯示
+      const sessionsLine = document.createElement('div');
+      sessionsLine.className = 'meta';
+      sessionsLine.style.marginTop = '6px';
+      sessionsLine.style.display = 'flex';
+      sessionsLine.style.gap = '6px';
+      sessionsLine.style.flexWrap = 'wrap';
+      for (const ss of state.sessions) {
+        const val = (ss && ss.playerScores && Number.isFinite(ss.playerScores[p.id])) ? ss.playerScores[p.id] : 0;
+        const b = document.createElement('span');
+        b.className = 'pill';
+        b.style.padding = '6px 8px';
+        b.style.fontSize = '12px';
+        b.textContent = `${ss.name}: ${val}`;
+        sessionsLine.appendChild(b);
       }
-    } else {
-      const title = document.createElement("div");
-      title.className = "hint";
-      title.textContent = "團體模式：依隊伍分數排序（高→低）";
-      scoreboard.appendChild(title);
+      left.appendChild(sessionsLine);
 
-      if (state.teams.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "hint";
-        empty.textContent = "尚無隊伍。先到上方新增隊伍（或切回個人模式）。";
-        scoreboard.appendChild(empty);
-        return;
-      }
-
-      const list = [...state.teams].sort((a,b) => b.teamScore - a.teamScore || a.name.localeCompare(b.name, "zh-Hant"));
-      for (const t of list) {
-        const row = document.createElement("div");
-        row.className = "item";
-
-        const left = document.createElement("div");
-        left.className = "name";
-        const cnt = teamMemberCount(t.id);
-        const sum = teamMembersScoreSum(t.id);
-        left.innerHTML = `<div class="main">${escapeHtml(t.name)}</div><div class="meta">人數：${cnt}｜隊伍分：${t.teamScore}｜個人加總：${sum}</div>`;
-
-        const right = document.createElement("div");
-        right.className = "btns";
-        const s = document.createElement("span");
-        s.className = "score";
-        s.textContent = `${t.teamScore}`;
-        right.appendChild(s);
-        right.appendChild(scoreBtn("+1", () => changeTeamScore(t.id, +1)));
-        right.appendChild(scoreBtn("+2", () => changeTeamScore(t.id, +2)));
-        right.appendChild(scoreBtn("+5", () => changeTeamScore(t.id, +5)));
-        right.appendChild(scoreBtn("-1", () => changeTeamScore(t.id, -1)));
-        row.appendChild(left);
-        row.appendChild(right);
-
-        scoreboard.appendChild(row);
-      }
+      const right = document.createElement("div");
+      right.className = "btns";
+      const scoreSpan = document.createElement("span");
+      scoreSpan.className = "score";
+      scoreSpan.textContent = `${p.total}`;
+      right.appendChild(scoreSpan);
+      right.appendChild(scoreBtn("+1", () => changePlayerScore(p.id, +1)));
+      right.appendChild(scoreBtn("-1", () => changePlayerScore(p.id, -1)));
+      row.appendChild(left);
+      row.appendChild(right);
+      scoreboard.appendChild(row);
     }
   }
 
@@ -815,9 +1108,7 @@
   }
 
   function renderModeButtons() {
-    const isPlayer = state.mode === "player";
-    modePlayer.classList.toggle("active", isPlayer);
-    modeTeam.classList.toggle("active", !isPlayer);
+    // no-op: removed mode toggle
   }
 
   function render() {
@@ -825,6 +1116,23 @@
     renderUnassigned();
     renderTeams();
     renderScoreboard();
+    renderSessions();
+    // apply view
+    setView(state.currentView || 'players');
+  }
+
+  function setView(v){
+    // v: 'players' | 'sessions' | 'board'
+    state.currentView = v;
+    // buttons
+    viewPlayers.classList.toggle('active', v === 'players');
+    viewSessions.classList.toggle('active', v === 'sessions');
+    viewBoard.classList.toggle('active', v === 'board');
+    // sections
+    playersSection.classList.toggle('active', v === 'players');
+    sessionsSection.classList.toggle('active', v === 'sessions');
+    scoreboardSection.classList.toggle('active', v === 'board');
+    saveState();
   }
 
   // ----- Wire events -----
@@ -835,14 +1143,61 @@
   teamName.addEventListener("keydown", (e) => { if (e.key === "Enter") addTeam(teamName.value); });
 
   btnAutoGroup.addEventListener("click", autoGroup);
-  modePlayer.addEventListener("click", () => setMode("player"));
-  modeTeam.addEventListener("click", () => setMode("team"));
+  btnRandomGroup.addEventListener('click', randomGroup);
+  btnAutoTeams.addEventListener('click', autoTeams);
+  btnCloneSession.addEventListener('click', cloneSession);
+  btnAddSession.addEventListener("click", () => addSession());
+  btnAutoGroup.addEventListener("click", autoGroup);
+  viewPlayers.addEventListener('click', () => setView('players'));
+  viewSessions.addEventListener('click', () => setView('sessions'));
+  viewBoard.addEventListener('click', () => setView('board'));
   btnReset.addEventListener("click", resetAll);
   btnExport.addEventListener("click", exportJSON);
   btnImport.addEventListener("click", importJSON);
 
   // dropzone for unassigned
   wireDropZone(unassignedZone, null);
+
+  // sessions render/wire
+  function addSession() {
+    // auto-numbered sessions
+    const id = uid('s');
+    const idx = state.sessions.length + 1;
+    const name = `第${idx}場`;
+    state.sessions.push({ id, name: name, teams: [], assignments: {}, playerScores: {}, finished: false });
+    state.currentSessionId = id;
+    saveState(); render();
+    showToast('已新增場次並切換到該場');
+  }
+
+  function renderSessions() {
+    sessionsWrap.innerHTML = '';
+    if (state.sessions.length === 0) {
+      const hint = document.createElement('div');
+      hint.className = 'hint';
+      hint.textContent = '尚無場次，請新增場次後開始本場分組與計分';
+      sessionsWrap.appendChild(hint);
+      return;
+    }
+    for (const s of state.sessions) {
+      const wrap = document.createElement('div');
+      wrap.style.display = 'flex';
+      wrap.style.gap = '6px';
+      wrap.style.alignItems = 'center';
+
+      const b = document.createElement('button');
+      b.className = 'small';
+      b.textContent = s.name;
+      if (s.id === state.currentSessionId) b.classList.add('primary');
+      b.addEventListener('click', () => setCurrentSession(s.id));
+
+      const delSess = createDeleteIconButton('刪除場次', (ev) => { ev.stopPropagation(); deleteSession(s.id); });
+
+      wrap.appendChild(b);
+      wrap.appendChild(delSess);
+      sessionsWrap.appendChild(wrap);
+    }
+  }
 
   // initial render
   render();
