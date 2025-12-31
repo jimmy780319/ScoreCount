@@ -1117,18 +1117,23 @@
       const contrast = getContrastColor(colorVal);
       row.style.color = contrast;
       row.style.borderColor = contrast === '#ffffff' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.12)';
-      const s = currentSession();
-      const teamId = s && s.assignments ? (s.assignments[p.id] || null) : null;
       const badgeHtml = `<span class="playerNameTag" style="background:${escapeHtml(colorVal)};color:${escapeHtml(contrast)}">${escapeHtml(p.name)}</span>`;
-      left.innerHTML = `<div class="main">${badgeHtml}</div><div class="meta">分組：${escapeHtml(getTeamName(teamId))}</div>`;
+      // name and session scores inline (sessions to the right of the name)
+      const mainRow = document.createElement('div');
+      mainRow.className = 'main';
+      mainRow.style.display = 'flex';
+      mainRow.style.alignItems = 'center';
+      mainRow.style.gap = '8px';
 
-      // 每場成績顯示
-      const sessionsLine = document.createElement('div');
-      sessionsLine.className = 'meta';
-      sessionsLine.style.marginTop = '6px';
-      sessionsLine.style.display = 'flex';
-      sessionsLine.style.gap = '6px';
-      sessionsLine.style.flexWrap = 'wrap';
+      const nameSpan = document.createElement('span');
+      nameSpan.innerHTML = badgeHtml;
+
+      const sessionPills = document.createElement('div');
+      sessionPills.style.display = 'flex';
+      sessionPills.style.gap = '6px';
+      sessionPills.style.flexWrap = 'wrap';
+      sessionPills.style.marginLeft = '6px';
+
       for (const ss of state.sessions) {
         const val = (ss && ss.playerScores && Number.isFinite(ss.playerScores[p.id])) ? ss.playerScores[p.id] : 0;
         const b = document.createElement('span');
@@ -1136,9 +1141,12 @@
         b.style.padding = '6px 8px';
         b.style.fontSize = '12px';
         b.textContent = `${ss.name}: ${val}`;
-        sessionsLine.appendChild(b);
+        sessionPills.appendChild(b);
       }
-      left.appendChild(sessionsLine);
+
+      mainRow.appendChild(nameSpan);
+      mainRow.appendChild(sessionPills);
+      left.appendChild(mainRow);
 
       const right = document.createElement("div");
       right.className = "btns";
@@ -1146,8 +1154,6 @@
       scoreSpan.className = "score";
       scoreSpan.textContent = `${p.total}`;
       right.appendChild(scoreSpan);
-      right.appendChild(scoreBtn("+1", () => changePlayerScore(p.id, +1)));
-      right.appendChild(scoreBtn("-1", () => changePlayerScore(p.id, -1)));
       row.appendChild(left);
       row.appendChild(right);
       scoreboard.appendChild(row);
