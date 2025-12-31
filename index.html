@@ -157,23 +157,43 @@
       grid-template-columns: 1fr;
       gap: var(--gap);
     }
+    /* team cards use a two-column layout: left = title & controls, right = members */
     .teamCard{
       border:1px solid var(--line);
       border-radius: var(--r);
       background: rgba(11,18,32,.02);
       overflow:hidden;
+      display:flex;
+      gap:12px;
+      align-items:center; /* center header vertically on wide screens */
     }
     .teamCard .th{
-      display:flex; justify-content:space-between; align-items:center;
-      padding: 12px 12px 10px;
-      border-bottom:1px solid var(--line);
-      gap:10px;
+      /* left column */
+      padding: 12px 12px 12px;
+      border-bottom: none;
+      flex: 0 0 220px;
+      min-width: 120px;
+      display:flex; /* ensure header content vertically centers */
+      align-items:center;
     }
-    .teamName{display:flex; flex-direction:column; gap:2px}
-    .teamName b{font-size:14px}
-    .teamName span{font-size:12px; color:var(--muted)}
-    .teamCard .tb{padding:12px}
-    .teamActions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .teamName{display:flex; flex-direction:column; gap:6px}
+    /* allow up to 2 lines for team names (better for long names, avoid per-character stacking) */
+    .teamName b{font-size:14px; display:block; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; white-space:normal; word-break:break-word; cursor:pointer}
+    .teamName span{font-size:12px; color:var(--muted); display:none}
+    .teamCard .tb{padding:12px; flex:1}
+    .teamControls{display:flex; gap:8px; align-items:center; flex-shrink:0}
+    .teamControls .score{display:inline-flex; align-items:center; justify-content:center; padding:4px 8px; font-size:14px; border-radius:999px; border:1px solid var(--line); background: rgba(11,18,32,.06); min-width:36px}
+    /* show members inline inside dropzone */
+    .teamCard .dropzone{display:flex; gap:8px; flex-wrap:wrap; align-items:center; min-height:48px} 
+
+    /* responsive: stack header + members on narrow screens */
+    @media (max-width: 600px){
+      .teamCard{flex-direction:column; align-items:flex-start}
+      .teamCard .th{flex:0 0 auto}
+      .teamCard .dropzone{min-height:48px}
+    }
+
+    .teamActions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end} 
     .seg{
       display:flex; gap:8px; align-items:center;
       background: rgba(11,18,32,.02);
@@ -240,6 +260,47 @@
     }
     /* temporarily hide export/import controls and IO box */
     #btnExport, #btnImport, #ioBox { display: none !important; }
+
+    /* Responsive compact layout for mobile: reduce paddings, font sizes, and row heights 🔧 */
+    @media (max-width: 600px){
+      .item{
+        padding: 6px 8px;
+        border-radius: 10px;
+      }
+      .name .main{font-size:13px}
+      .name .meta{font-size:11px}
+      .score{
+        font-size:12px;
+        padding: 4px 8px;
+      }
+      .teamCard .th{
+        padding: 8px 10px;
+      }
+      .teamCard .tb{
+        padding: 8px;
+      }
+      .teamName b{font-size:13px; flex:1}
+      .teamName span{font-size:11px}
+      .dropzone{
+        min-height:48px;
+        padding:8px;
+      }
+      input[type="text"]{padding:8px 10px; min-width:120px}
+      button{padding:8px 10px}
+      .seg button{padding:6px 8px}
+      .playerNameTag{padding:2px 6px; font-size:12px}
+      .list{gap:8px}
+      .teams{gap:8px}
+    }
+
+    @media (max-width: 420px){
+      .item{padding:5px 6px}
+      .teamCard .th{padding:6px 8px}
+      .teamCard .tb{padding:6px}
+      .score{font-size:11px; padding:3px 6px}
+      .title b{font-size:13px}
+      .title span{font-size:11px}
+    }
   </style>
 </head>
 
@@ -967,41 +1028,40 @@
       const b = document.createElement("b");
       b.textContent = t.name;
 
-      const memberCnt = teamMemberCount(t.id);
-      const meta = document.createElement("span");
-      // show only member count here; team score will be shown with controls on the right
-      meta.textContent = `人數：${memberCnt}`;
-      left.appendChild(b);
-      left.appendChild(meta);
+      // Build a header row (title on left, controls on right)
+      const heading = document.createElement('div');
+      heading.style.display = 'flex';
+      heading.style.justifyContent = 'space-between';
+      heading.style.alignItems = 'center';
 
-      const right = document.createElement("div");
-      right.className = "teamActions";
+      const controls = document.createElement("div");
+      controls.className = "teamControls";
 
-      // team score display + buttons inline (no 個人加總 shown)
       const scoreSpan = document.createElement('span');
       scoreSpan.className = 'score';
-      scoreSpan.textContent = `${t.teamScore}`;
-      right.appendChild(scoreSpan);
-      right.appendChild(scoreBtn(`+1`, () => changeTeamScore(t.id, +1)));
-      right.appendChild(scoreBtn(`-1`, () => changeTeamScore(t.id, -1), 'small'));
-
-      const rename = document.createElement("button");
-      rename.className = "small";
-      rename.textContent = "改名";
-      rename.addEventListener("click", () => renameTeam(t.id));
+      scoreSpan.textContent = `${Number.isFinite(t.teamScore) ? t.teamScore : 0}`;
+      controls.appendChild(scoreSpan);
+      controls.appendChild(scoreBtn(`+1`, () => changeTeamScore(t.id, +1)));
+      controls.appendChild(scoreBtn(`-1`, () => changeTeamScore(t.id, -1), 'small'));
 
       const del = createDeleteIconButton('刪除隊伍', () => removeTeam(t.id));
+      controls.appendChild(del);
 
-      right.appendChild(rename);
-      right.appendChild(del);
+      // rename by clicking the team name
+      b.addEventListener('click', () => renameTeam(t.id));
+      b.setAttribute('title', '點擊修改隊名');
+
+      heading.appendChild(b);
+      heading.appendChild(controls);
+
+      left.appendChild(heading);
 
       th.appendChild(left);
-      th.appendChild(right);
 
       const tb = document.createElement("div");
       tb.className = "tb";
 
-      // Drop zone for team members
+      // Drop zone for team members (rendered to the right)
       const dz = document.createElement("div");
       dz.className = "dropzone";
       dz.dataset.teamId = t.id;
@@ -1017,7 +1077,6 @@
         for (const p of members) dz.appendChild(makePlayerRow(p, { showTeamMeta: true, context: 'session' }));
       }
 
-      // team controls moved to header; no extra pad here
       tb.appendChild(dz);
 
       tc.appendChild(th);
