@@ -137,6 +137,9 @@
     }
     .playerSwatch{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;border:1px solid rgba(11,18,32,.12);vertical-align:middle}
     .playerNameTag{display:inline-block;padding:4px 8px;border-radius:8px;color:var(--text);font-weight:600;margin-right:6px}
+    .playerLabel{display:inline-block; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .playerSwatch{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;border:1px solid rgba(11,18,32,.12);vertical-align:middle}
+    .playerSwatch:focus{outline:2px solid rgba(33,118,255,.35);}
     .btns{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
     .btns button{white-space:nowrap}
 
@@ -759,6 +762,21 @@
     }
   }
 
+  function renamePlayer(id) {
+    const p = state.players.find(x => x.id === id);
+    if (!p) return;
+    const n = prompt("輸入新的姓名：", p.name);
+    if (n === null) return;
+    const nn = n.trim();
+    if (!nn) return showToast("名稱不可空白");
+    // check duplicate across players (case-insensitive)
+    const low = nn.toLowerCase();
+    if (state.players.some(x => x.id !== id && String(x.name).trim().toLowerCase() === low)) return showToast('已有相同名稱的人員');
+    p.name = nn;
+    saveState(); render();
+    showToast("已更新人員名稱");
+  }
+
   function assignPlayer(playerId, teamIdOrNull) {
     const p = state.players.find(x => x.id === playerId);
     if (!p) return;
@@ -876,25 +894,57 @@
     const left = document.createElement("div");
     left.className = "name";
 
-    // name badge with full background color + hidden color input for changing color
+    // name text and a small color-swatch to the right (click name to rename, click swatch to change color)
     const colorVal = p.color || pickColorForName(p.name);
-    const badge = document.createElement('span');
-    badge.className = 'playerNameTag';
-    badge.textContent = p.name;
-    badge.style.background = colorVal;
-    badge.style.color = getContrastColor(colorVal);
-    badge.title = '變更顏色';
-    badge.style.cursor = 'pointer';
-    const colorInput = document.createElement('input');
-    colorInput.type = 'color';
-    colorInput.value = (p.color && String(p.color).startsWith('#')) ? p.color : pickColorForName(p.name);
-    colorInput.style.display = 'none';
-    colorInput.addEventListener('input', () => changePlayerColor(p.id, colorInput.value));
-    badge.addEventListener('click', () => colorInput.click());
 
     const main = document.createElement("div");
     main.className = "main";
-    main.appendChild(badge);
+    main.style.display = 'flex';
+    main.style.alignItems = 'center';
+    main.style.gap = '8px';
+
+    // name text (click to rename)
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'playerLabel';
+    nameSpan.textContent = p.name;
+    nameSpan.title = '點擊修改名稱';
+    nameSpan.style.cursor = 'pointer';
+    nameSpan.style.fontWeight = '600';
+    nameSpan.addEventListener('click', () => renamePlayer(p.id));
+    nameSpan.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') renamePlayer(p.id); });
+
+    // color swatch (small dot) - clicking opens color picker
+    const swatch = document.createElement('span');
+    swatch.className = 'playerSwatch';
+    swatch.style.background = colorVal;
+    swatch.title = '點擊修改顏色';
+    swatch.style.cursor = 'pointer';
+    swatch.setAttribute('role', 'button');
+    swatch.tabIndex = 0;
+
+    // hidden color input - not display:none so mobile pickers can open
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = (p.color && String(p.color).startsWith('#')) ? p.color : pickColorForName(p.name);
+    colorInput.style.position = 'absolute';
+    colorInput.style.width = '1px';
+    colorInput.style.height = '1px';
+    colorInput.style.opacity = '0';
+    colorInput.style.border = '0';
+    colorInput.style.padding = '0';
+    colorInput.style.margin = '0';
+    colorInput.addEventListener('input', () => changePlayerColor(p.id, colorInput.value));
+    colorInput.addEventListener('change', () => changePlayerColor(p.id, colorInput.value));
+
+    // support pointer/touch interactions for mobile
+    const openPicker = (ev) => { ev.preventDefault(); colorInput.click(); };
+    swatch.addEventListener('click', openPicker);
+    swatch.addEventListener('pointerup', openPicker);
+    swatch.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); colorInput.click(); } });
+
+    main.appendChild(nameSpan);
+    main.appendChild(swatch);
+
     const meta = document.createElement("div");
     meta.className = "meta";
     // make meta slightly muted but visible against the colored background
